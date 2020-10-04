@@ -9,7 +9,7 @@
 				"/Zi",
 				"/EHsc",
 				"/Fe:",
-				"${fileDirname}\\cmdspec.exe",
+				"${fileDirname}\\spec.exe",
 				"${file}"
 			],
 			"options": {

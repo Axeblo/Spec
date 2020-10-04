@@ -16,10 +16,10 @@ int main( int argc, char ** argv )
 {
     if( argc < 2)
     {
-        cout << "Usage: spec <IP> [-o offset][-cf freq][-s span][-m1 on/off][-m2 on/off]\n"
-            << "-o offset: Offset frequency expressed in MHz\n"
-            << "cf: Center frequency expressed in MHz\n"
-            << "-s span: Span width expressed in MHz\n"
+        cout << "Usage: spec <IP> [-o offset] [-cf center_freq] [-s span] [-m1 on/off] [-m2 on/off]\n"
+            << "-o: Offset frequency expressed in MHz\n"
+            << "-cf: Center frequency expressed in MHz\n"
+            << "-s: Span width expressed in MHz\n"
             << "-m1 on/off: Marker 1on or off\n"
             << "-m2 on/off: Marker 2 on or off";
         return 0;

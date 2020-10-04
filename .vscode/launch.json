@@ -8,7 +8,7 @@
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "/cmdspec.exe",
+            "program": "/spec.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

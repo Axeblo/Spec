@@ -22,6 +22,7 @@ int main( int argc, char ** argv )
             << "-s span: Span width expressed in MHz\n"
             << "-m1 on/off: Marker 1on or off\n"
             << "-m2 on/off: Marker 2 on or off";
+        return 0;
     }
     int scanner = 2;
     
@@ -239,7 +240,7 @@ int main( int argc, char ** argv )
             printf("%s\n", recvbuf);
         }
         else if (iResult == 0)
-            printf("Connection closed\n");
+            ;//printf("Connection closed\n");
         else
             printf("recv failed: %d\n", WSAGetLastError());
     } while (iResult > 0);

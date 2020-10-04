@@ -8,20 +8,18 @@
 
 using namespace std;
 
-void connectSpec();
-void sendSpec(string arg);
-void disconnectSpec();
+int sendSCPI( SOCKET socket, string data );
 
 int main( int argc, char ** argv )
 {
     if( argc < 2)
     {
-        cout << "Usage: spec <IP> [-o offset] [-cf center_freq] [-s span] [-m1 on/off] [-m2 on/off]\n"
+        cout << "Usage: spec <IP> [-o offset] [-cf center_freq] [-s span] [-m1|2 on|off] [-t1|2|3 write|max|min|avg|off ]\n"
             << "-o: Offset frequency expressed in MHz\n"
             << "-cf: Center frequency expressed in MHz\n"
             << "-s: Span width expressed in MHz\n"
-            << "-m1 on/off: Marker 1on or off\n"
-            << "-m2 on/off: Marker 2 on or off";
+            << "-m1|2 on|off: Marker 1 or 2 on or off\n"
+            << "-t1|2|3 write|max|min|avg|off Trace mode\n";
         return 0;
     }
     int scanner = 2;
@@ -98,124 +96,257 @@ int main( int argc, char ** argv )
     int recvbuflen = DEFAULT_BUFLEN;
     char recvbuf[DEFAULT_BUFLEN];
     
-    while(scanner < argc)
+    while(scanner < argc-1)
     {
         if( strcmp(argv[scanner], "-o") == 0 )
         {
             string offset(argv[scanner+1]);
-            string sendbuf = "sense:freq:offs "+offset+"mhz\n";
+            string data = "sense:freq:offs "+offset+"mhz\n";
 
-            // Send an initial buffer
-            iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-            if (iResult == SOCKET_ERROR) {
-                printf("send failed: %d\n", WSAGetLastError());
-                closesocket(ConnectSocket);
-                WSACleanup();
-                return 1;
-            }
-
-            printf("Offset Sent: %ld\n", iResult);
+            if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
         }
-        if( strcmp(argv[scanner], "-cf") == 0 )
+        else if( strcmp(argv[scanner], "-cf") == 0 )
         {
             string center(argv[scanner+1]);
-            string sendbuf = "sense:freq:cent "+center+"mhz\n";
+            string data = "sense:freq:cent "+center+"mhz\n";
 
-            // Send an initial buffer
-            iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-            if (iResult == SOCKET_ERROR) {
-                printf("send failed: %d\n", WSAGetLastError());
-                closesocket(ConnectSocket);
-                WSACleanup();
-                return 1;
-            }
-
-            printf("CF Sent: %ld\n", iResult);
+            if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
         }
-        if( strcmp(argv[scanner], "-s") == 0 )
+        else if( strcmp(argv[scanner], "-s") == 0 )
         {
             string span(argv[scanner+1]);
-            string sendbuf = "sense:freq:span "+span+"mhz\n";
+            string data = "sense:freq:span "+span+"mhz\n";
 
-            // Send an initial buffer
-            iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-            if (iResult == SOCKET_ERROR) {
-                printf("send failed: %d\n", WSAGetLastError());
-                closesocket(ConnectSocket);
-                WSACleanup();
-                return 1;
-            }
-
-            printf("Span Sent: %ld\n", iResult);
+            if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
         }
-        if( strcmp(argv[scanner], "-m1") == 0 )
+        else if( strcmp(argv[scanner], "-m1") == 0 )
         {
             if( strcmp( argv[scanner+1], "on" ) == 0 )
             {
                 string span(argv[scanner+1]);
-                string sendbuf = ":calc:mark1:mode pos\n";
+                string data = ":calc:mark1:mode pos\n";
 
-                // Send an initial buffer
-                iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-                if (iResult == SOCKET_ERROR) {
-                    printf("send failed: %d\n", WSAGetLastError());
-                    closesocket(ConnectSocket);
-                    WSACleanup();
-                    return 1;
-                }
-
-                printf("Mark1 Sent: %ld\n", iResult);
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
             }
             else
             {
                 string span(argv[scanner+1]);
-                string sendbuf = ":calc:mark1:mode off\n";
+                string data = ":calc:mark1:mode off\n";
 
-                // Send an initial buffer
-                iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-                if (iResult == SOCKET_ERROR) {
-                    printf("send failed: %d\n", WSAGetLastError());
-                    closesocket(ConnectSocket);
-                    WSACleanup();
-                    return 1;
-                }
-
-                printf("Mark1 Sent: %ld\n", iResult);
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
             }
         }
-        if( strcmp(argv[scanner], "-m2") == 0 )
+        else if( strcmp(argv[scanner], "-m2") == 0 )
         {
             if( strcmp( argv[scanner+1], "on" ) == 0 )
             {
                 string span(argv[scanner+1]);
-                string sendbuf = ":calc:mark2:mode pos\n";
+                string data = ":calc:mark2:mode pos\n";
 
-                // Send an initial buffer
-                iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-                if (iResult == SOCKET_ERROR) {
-                    printf("send failed: %d\n", WSAGetLastError());
-                    closesocket(ConnectSocket);
-                    WSACleanup();
-                    return 1;
-                }
-
-                printf("Mark2 Sent: %ld\n", iResult);
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
             }
             else
             {
                 string span(argv[scanner+1]);
-                string sendbuf = ":calc:mark2:mode off\n";
+                string data = ":calc:mark2:mode off\n";
 
-                // Send an initial buffer
-                iResult = send(ConnectSocket, &sendbuf[0], (int)sendbuf.length(), 0);
-                if (iResult == SOCKET_ERROR) {
-                    printf("send failed: %d\n", WSAGetLastError());
-                    closesocket(ConnectSocket);
-                    WSACleanup();
-                    return 1;
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
+            }
+        }
+        else if( strcmp(argv[scanner], "-t1") == 0 )
+        {
+            if( strcmp( argv[scanner+1], "write" ) == 0 )
+            {
+                {
+                    string data = ":trac1:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
                 }
+                string data = ":trac1:mode write\n";
 
-                printf("Mark2 Sent: %ld\n", iResult);
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
+            }
+            else if( strcmp( argv[scanner+1], "max" ) == 0 )
+            {
+                {
+                    string data = ":trac1:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac1:mode maxh\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+            else if( strcmp( argv[scanner+1], "min" ) == 0 )
+            {
+                {
+                    string data = ":trac1:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac1:mode minh\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+            else if( strcmp( argv[scanner+1], "avg" ) == 0 )
+            {
+                {
+                    string data = ":trac1:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                        return 0;
+                }
+                {
+                    string data = ":trac1:mode aver\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                        return 0;
+                }
+            }
+            else
+            {
+                string span(argv[scanner+1]);
+                string data = ":trac1:upd 0\n";
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                   return 0;
+                
+                data = ":trac1:disp 0\n";
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+        }
+        else if( strcmp(argv[scanner], "-t2") == 0 )
+        {
+            if( strcmp( argv[scanner+1], "write" ) == 0 )
+            {
+                {
+                    string data = ":trac2:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac2:mode write\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
+            }
+            else if( strcmp( argv[scanner+1], "max" ) == 0 )
+            {
+                {
+                    string data = ":trac2:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac2:mode maxh\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+            else if( strcmp( argv[scanner+1], "min" ) == 0 )
+            {
+                {
+                    string data = ":trac2:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac2:mode minh\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+            else if( strcmp( argv[scanner+1], "avg" ) == 0 )
+            {
+                {
+                    string data = ":trac2:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                        return 0;
+                }
+                {
+                    string data = ":trac2:mode aver\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                        return 0;
+                }
+            }
+            else
+            {
+                string span(argv[scanner+1]);
+                string data = ":trac2:upd 0\n";
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                   return 0;
+                
+                data = ":trac2:disp 0\n";
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+        }
+        else if( strcmp(argv[scanner], "-t3") == 0 )
+        {
+            if( strcmp( argv[scanner+1], "write" ) == 0 )
+            {
+                {
+                    string data = ":trac3:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac3:mode write\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                return 0;
+            }
+            else if( strcmp( argv[scanner+1], "max" ) == 0 )
+            {
+                {
+                    string data = ":trac3:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac3:mode maxh\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+            else if( strcmp( argv[scanner+1], "min" ) == 0 )
+            {
+                {
+                    string data = ":trac3:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+                }
+                string data = ":trac3:mode minh\n";
+
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
+            }
+            else if( strcmp( argv[scanner+1], "avg" ) == 0 )
+            {
+                {
+                    string data = ":trac3:upd 1\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                        return 0;
+                }
+                {
+                    string data = ":trac3:mode aver\n";
+                    if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                        return 0;
+                }
+            }
+            else
+            {
+                string span(argv[scanner+1]);
+                string data = ":trac3:upd 0\n";
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                   return 0;
+                
+                data = ":trac3:disp 0\n";
+                if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
+                    return 0;
             }
         }
         scanner++;
@@ -249,6 +380,16 @@ int main( int argc, char ** argv )
     return 0;
 }
 
-void connectSpec();
-void sendSpec(string arg);
-void disconnectSpec();
+int sendSCPI( SOCKET socket, string data )
+{
+    // Send an initial buffer
+    int iResult = send(socket, &data[0], (int)data.length(), 0);
+    if (iResult == SOCKET_ERROR) {
+        printf("send failed: %d\n", WSAGetLastError());
+        closesocket(socket);
+        WSACleanup();
+        return SOCKET_ERROR;
+    }
+
+    return iResult;
+}

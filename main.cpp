@@ -14,12 +14,13 @@ int main( int argc, char ** argv )
 {
     if( argc < 2)
     {
-        cout << "Usage: spec <IP> [-o offset] [-cf center_freq] [-s span] [-m1|2 on|off] [-t1|2|3 write|max|min|avg|off ]\n"
-            << "-o: Offset frequency expressed in MHz\n"
-            << "-cf: Center frequency expressed in MHz\n"
-            << "-s: Span width expressed in MHz\n"
-            << "-m1|2 on|off: Marker 1 or 2 on or off\n"
-            << "-t1|2|3 write|max|min|avg|off Trace mode\n";
+        cout << "Use: spec [dst_ip] [options]\n"
+            << "Options:\n"
+            << "-o offset\tOffset frequency expressed in MHz\n"
+            << "-c center\tCenter frequency expressed in MHz\n"
+            << "-s span\t\tSpan width expressed in MHz\n"
+            << "-m[1..2] on|off\tMarker on or off. X is integer between 1 and 2. Example -m1 on\n"
+            << "-t[1..3] mode\tTrace mode: write|max|min|avg|off. Example -t1 write\n";
         return 0;
     }
     int scanner = 2;
@@ -106,7 +107,7 @@ int main( int argc, char ** argv )
             if( SOCKET_ERROR == sendSCPI(ConnectSocket, data) )
                 return 0;
         }
-        else if( strcmp(argv[scanner], "-cf") == 0 )
+        else if( strcmp(argv[scanner], "-c") == 0 )
         {
             string center(argv[scanner+1]);
             string data = "sense:freq:cent "+center+"mhz\n";

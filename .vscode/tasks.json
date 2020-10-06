@@ -3,13 +3,33 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"label": "C/C++: cl.exe build active file",
+			"label": "C/C++: cl.exe build debug",
 			"command": "cl.exe",
 			"args": [
 				"/Zi",
 				"/EHsc",
 				"/Fe:",
 				"${fileDirname}\\spec.exe",
+				"${file}"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "shell",
+			"label": "C/C++: cl.exe build release",
+			"command": "cl.exe",
+			"args": [
+				"/EHsc",
+				"/Fe\"${fileDirname}\\release\\spec\"",
 				"${file}"
 			],
 			"options": {

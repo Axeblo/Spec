@@ -1,2 +1,2 @@
 # Spec
- cmd tool for agilent N9010A
+ cmd tool for remote controll of Agilent N9010A using SCPI over TCP/IP

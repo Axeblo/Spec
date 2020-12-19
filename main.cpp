@@ -9,7 +9,8 @@
 using namespace std;
 bool verbose = false;
 
-int sendData( SOCKET socket, string data );
+int sendData(SOCKET socket, string data);
+int sendQuery(SOCKET socket, string data);
 SOCKET myConnect( char *IP );
 
 int main( int argc, char ** argv )
@@ -19,8 +20,13 @@ int main( int argc, char ** argv )
         cout << "Use: spec [dst_ip] [options]\n"
             << "Options:\n"
             << "-o offset\tOffset frequency expressed in MHz\n"
-            << "-c center\tCenter frequency expressed in MHz\n"
+            << "-f frequency\tCenter frequency expressed in MHz\n"
             << "-s span\t\tSpan width expressed in MHz\n"
+            << "-r reference\tReference level in dBm\n"
+            << "-a attenuation\tAttenuation in increments of 10 in dB\n"
+            << "-d scale/div\tScale/div setting in dB\n"
+            << "-b res bw\tResolution bandwidth in kHz\n"
+            << "-i video bw\tVideo bandwidth in Hz\n"
             << "-m[1..2] on|off\tMarker on or off. X is integer between 1 and 2. Example -m1 on\n"
             << "-t[1..3] mode\tTrace mode: write|max|min|avg|off. Example -t1 write\n"
             << "-v\t\tVerbose mode\n";
@@ -49,24 +55,176 @@ int main( int argc, char ** argv )
             string offset(argv[scanner+1]);
             string data = "sense:freq:offs "+offset+"mhz\n";
 
-            if( SOCKET_ERROR == sendData(ConnectSocket, data) )
-                return 0;
+            if (offset.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "sense:freq:offs?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
         }
-        else if( strcmp(argv[scanner], "-c")  == 0 )//Center frequency
+        else if( strcmp(argv[scanner], "-f")  == 0 )//Center frequency
         {
-            string center(argv[scanner+1]);
-            string data = "sense:freq:cent "+center+"mhz\n";
+            string f(argv[scanner+1]);
+            string data = "sense:freq:cent "+f+"mhz\n";
 
-            if( SOCKET_ERROR == sendData(ConnectSocket, data) )
-                return 0;
+            if (f.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "sense:freq:cent?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
         }
         else if( strcmp(argv[scanner], "-s")  == 0 )//Span
         {
             string span(argv[scanner+1]);
             string data = "sense:freq:span "+span+"mhz\n";
 
-            if( SOCKET_ERROR == sendData(ConnectSocket, data) )
+            if (span.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "sense:freq:span?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+        }
+        else if (strcmp(argv[scanner], "-a") == 0)//Span
+        {
+            string attenuation(argv[scanner + 1]);
+            string data = "pow:att " + attenuation + "\n";
+
+            if (attenuation.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "pow:att?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+        }
+        else if (strcmp(argv[scanner], "-d") == 0)//scale/div
+        {
+            string scalediv(argv[scanner + 1]);
+            string data = "disp:wind:trac:y:pdiv "+scalediv+"db\n";
+
+            if (scalediv.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "disp:wind:trac:y:pdiv?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+        }
+        else if (strcmp(argv[scanner], "-r") == 0)//Reference level
+        {
+            string ref(argv[scanner + 1]);
+            string data = "disp:wind:trac:y:rlev " + ref + "dbm\n";
+
+            if (ref.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "disp:wind:trac:y:rlev?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+        }
+        else if (strcmp(argv[scanner], "-b") == 0)//resolution bandwidth
+        {
+            string rbw(argv[scanner + 1]);
+            string data = "band " + rbw + "khz\n";
+
+            if (rbw.compare("?") != 0)
+            {
+                if (SOCKET_ERROR == sendData(ConnectSocket, data))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+            else
+            {
+                if (SOCKET_ERROR == sendQuery(ConnectSocket, "band?\n"))
+                {
+                    printf("Socket error, exiting\n");
+                    return 0;
+                }
+            }
+        }
+        else if (strcmp(argv[scanner], "-i") == 0)//video bandwidth
+        {
+        string vbw(argv[scanner + 1]);
+        string data = "band:vid " + vbw + "hz\n";
+
+        if (vbw.compare("?") != 0)
+        {
+            if (SOCKET_ERROR == sendData(ConnectSocket, data))
+            {
+                printf("Socket error, exiting\n");
                 return 0;
+            }
+        }
+        else
+        {
+            if (SOCKET_ERROR == sendQuery(ConnectSocket, "band:vid?\n"))
+            {
+                printf("Socket error, exiting\n");
+                return 0;
+            }
+        }
         }
         else if( strcmp(argv[scanner], "-m1") == 0 )//Marker 1
         {
@@ -304,12 +462,13 @@ int main( int argc, char ** argv )
             WSACleanup();
             return 1;
         }
-   
+    printf("Everything went well.\n");
     return 0;
 }
 
 int sendData( SOCKET socket, string data )
 {
+    char recvbuf[1000];
     if(verbose) cout << "Data: " << data;
     // Send an initial buffer
     int iResult = send(socket, &data[0], (int)data.length(), 0);
@@ -319,6 +478,34 @@ int sendData( SOCKET socket, string data )
         WSACleanup();
         return SOCKET_ERROR;
     }
+
+    return iResult;
+}
+int sendQuery(SOCKET socket, string data)
+{
+    char recvbuf[1000];
+    for (int i = 0; i < 1000; ++i)
+    {
+        recvbuf[i] = '\0';;
+    }
+    if (verbose) cout << "Data: " << data;
+    // Send an initial buffer
+    int iResult = send(socket, &data[0], (int)data.length(), 0);
+    if (iResult == SOCKET_ERROR) {
+        printf("send failed: %d\n", WSAGetLastError());
+        closesocket(socket);
+        WSACleanup();
+        return SOCKET_ERROR;
+    }
+
+    iResult = recv(socket, recvbuf, 1000, 0);
+    if (iResult > 0)
+        printf("Bytes received: %d: %s\n", iResult, recvbuf);
+    else if (iResult == 0)
+        printf("Connection closed\n");
+    else
+        printf("recv failed with error: %d\n", WSAGetLastError());
+
 
     return iResult;
 }

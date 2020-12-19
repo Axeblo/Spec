@@ -33,5 +33,7 @@
 
 *.ilk
 *.pdb
-
+.vs/
+Debug/
 release/
+x64/
